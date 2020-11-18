@@ -107,6 +107,71 @@ bool test_add_to_vector() {
     return passed;
 }
 
+bool test_sub_vectors() {
+    bool passed = true;
+
+    struct Vector x = generate_vector(3);
+    struct Vector y = generate_vector(3);
+
+    x.vector[0] = 10;
+    x.vector[1] = 20;
+    x.vector[2] = 40;
+
+    y.vector[0] = 10;
+    y.vector[1] = 20;
+    y.vector[2] = 40;
+
+    struct Vector z = sub_vectors(&x, &y);
+
+    if (z.vector[0] != 0 || z.vector[1] != 0 || z.vector[2] != 0) {
+        passed = false;
+        printf("[0, 0, 0] != [%d, %d, %d]\n", z.vector[0], z.vector[1], z.vector[2]);
+    }
+
+    clean_vector(x);
+    clean_vector(y);
+    clean_vector(z);
+
+    if (passed) {
+        printf("test_sub_vectors ... passed\n");
+    } else {
+        printf("test_sub_vectors ... failed\n");
+    }
+    return passed;
+}
+
+bool test_sub_from_vector() {
+    bool passed = true;
+
+    struct Vector x = generate_vector(3);
+    struct Vector y = generate_vector(3);
+
+    x.vector[0] = 10;
+    x.vector[1] = 20;
+    x.vector[2] = 40;
+
+    y.vector[0] = 10;
+    y.vector[1] = 20;
+    y.vector[2] = 40;
+
+    sub_from_vector(&x, &y);
+
+    if (x.vector[0] != 0 || x.vector[1] != 0 || x.vector[2] != 0) {
+        passed = false;
+        printf("[0, 0, 0] != [%d, %d, %d]\n", x.vector[0], x.vector[1], x.vector[2]);
+    }
+
+    clean_vector(x);
+    clean_vector(y);
+
+    if (passed) {
+        printf("test_sub_from_vector ... passed\n");
+    } else {
+        printf("test_sub_from_vector ... failed\n");
+    }
+    return passed;
+}
+
 bool test_mul_vectors() {
     bool passed = true;
 
@@ -186,6 +251,8 @@ int main() {
 
     passed = test_add_vectors();
     passed = test_add_to_vector();
+    passed = test_sub_vectors();
+    passed = test_sub_from_vector();
     passed = test_mul_vectors();
     passed = test_mul_to_vector();
 

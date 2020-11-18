@@ -34,6 +34,29 @@ void add_to_vector(struct Vector *a, struct Vector *b) {
     }
 }
 
+// Vector Subtraction 
+struct Vector sub_vectors(struct Vector *a, struct Vector *b) {
+    if (a->size != b->size) {
+        printf("Invalid sizes");
+        exit(1);
+    }
+    struct Vector c = generate_vector(a->size);
+    for (int i = 0; i < a -> size; i++) {
+        c.vector[i] = a->vector[i] - b->vector[i];
+    }
+    return c;
+}
+
+void sub_from_vector(struct Vector *a, struct Vector *b) {
+    if (a->size != b->size) {
+        printf("Invalid sizes");
+	exit(1);
+    }
+    for (int i = 0; i < a->size; i++) {
+        a->vector[i] -= b->vector[i];
+    }
+}
+
 // Vector Multiplication
 struct Vector mul_vectors(struct Vector *a, struct Vector *b) {
     if (a->size != b->size) {
