@@ -15,13 +15,11 @@ OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 
 
 $(ODIR)/%.o: ./src/%.c $(DEPS)
+	mkdir -p $(ODIR) 
 	$(CC) -c -o $@ $< $(CFLAGS)
 
-extreme_maths: $(OBJ)
-	$(CC) -c -o $(ODIR)/main.o ./src/main.c $(CFLAGS)
-	$(CC) -o ./bin/$@ $^ $(ODIR)/main.o $(CFLAGS) $(LIBS)
-
 test: $(OBJ)
+	mkdir -p $(ODIR) ./bin/
 	$(CC) -c -o $(ODIR)/test.o ./src/test.c $(CFLAGS)
 	$(CC) -o ./bin/$@ $^ $(ODIR)/test.o $(CFLAGS) $(LIBS)
 	@./bin/test
@@ -35,6 +33,3 @@ shared:
 
 clean:
 	rm -f $(ODIR)/*.o *~ core $(INCDIR)/*~
-
-run: 
-	@./bin/extreme_maths
