@@ -5,257 +5,264 @@
 void print_vector(struct Vector *a) {
    printf("[");
    for (int i = 0; i < a->size; i++) {
-      printf(" %d,", a->vector[i]);
+      printf(" %f,", a->array[i]);
    }
    printf(" ]\n");
 }
 
-bool test_generate_vector() {
+bool test_vector_add() {
     bool passed = true;
 
-    struct Vector x = generate_vector(3);
-    if (x.size != 3) {
+    float x[3*sizeof(float)] = {10.0f, 20.0f, 40.0f};
+    float y[3*sizeof(float)] = {10.0f, 20.0f, 40.0f};
+
+    struct Vector vec_x = create_vector(x, 3);
+    struct Vector vec_y = create_vector(y, 3);
+
+    struct Vector vec_z = vector_add(&vec_x, &vec_y);
+
+    float* z = get_result(&vec_z); 
+
+    if (z[0] != 20.0f || z[1] != 40.0f || z[2] != 80.0f) {
         passed = false;
-        printf("Error: Generated vector of size 3 has size %d\n", x.size);
-    }
-    for (int i = 0; i < 3; i++) {
-        x.vector[i] = 3;
+        printf("[20.0, 40.0, 80.0] != [%f, %f, %f]\n", z[0], z[1], z[2]);
     }
 
-    struct Vector y = generate_vector(4);
-    if (y.size != 4) {
-        passed = false;
-        printf("Error: Generated vector of size 3 has size %d\n", x.size);
-    }
-    for (int i = 0; i < 4; i++) {
-        y.vector[i] = 4;        
-    }
-
-    clean_vector(x);
-    clean_vector(y);
+    clean_vector(vec_x);
+    clean_vector(vec_y);
+    clean_vector(vec_z);
 
     if (passed) {
-        printf("test_generate_vector ... passed\n");
+        printf("test_vector_add ... passed\n");
     } else {
-        printf("test_generate_vector ... failed\n");
+        printf("test_vector_add ... failed\n");
     }
     return passed;
 }
 
-bool test_add_vectors() {
+bool test_vector_iadd() {
     bool passed = true;
 
-    struct Vector x = generate_vector(3);
-    struct Vector y = generate_vector(3);
+    float x[3*sizeof(float)] = {10.0f, 20.0f, 40.0f};
+    float y[3*sizeof(float)] = {10.0f, 20.0f, 40.0f};
 
-    x.vector[0] = 10;
-    x.vector[1] = 20;
-    x.vector[2] = 40;
+    struct Vector vec_x = create_vector(x, 3);
+    struct Vector vec_y = create_vector(y, 3);
 
-    y.vector[0] = 10;
-    y.vector[1] = 20;
-    y.vector[2] = 40;
+    vector_iadd(&vec_x, &vec_y);
 
-    struct Vector z = add_vectors(&x, &y);
+    float* z = get_result(&vec_x); 
 
-    if (z.vector[0] != 20 || z.vector[1] != 40 || z.vector[2] != 80) {
+    if (z[0] != 20.0f || z[1] != 40.0f || z[2] != 80.0f) {
         passed = false;
-        printf("[20, 40, 80] != [%d, %d, %d]\n", z.vector[0], z.vector[1], z.vector[2]);
+        printf("[20.0, 40.0, 80.0] != [%f, %f, %f]\n", z[0], z[1], z[2]);
     }
 
-    clean_vector(x);
-    clean_vector(y);
-    clean_vector(z);
+    clean_vector(vec_x);
+    clean_vector(vec_y);
 
     if (passed) {
-        printf("test_add_vectors ... passed\n");
+        printf("test_vector_iadd ... passed\n");
     } else {
-        printf("test_add_vectors ... failed\n");
+        printf("test_vector_iadd ... failed\n");
     }
     return passed;
 }
 
-bool test_add_to_vector() {
+bool test_vector_sub() {
     bool passed = true;
 
-    struct Vector x = generate_vector(3);
-    struct Vector y = generate_vector(3);
+    float x[3*sizeof(float)] = {30.0f, 60.0f, 120.0f};
+    float y[3*sizeof(float)] = {10.0f, 20.0f, 40.0f};
 
-    x.vector[0] = 10;
-    x.vector[1] = 20;
-    x.vector[2] = 40;
+    struct Vector vec_x = create_vector(x, 3);
+    struct Vector vec_y = create_vector(y, 3);
 
-    y.vector[0] = 10;
-    y.vector[1] = 20;
-    y.vector[2] = 40;
+    struct Vector vec_z = vector_sub(&vec_x, &vec_y);
 
-    add_to_vector(&x, &y);
+    float* z = get_result(&vec_z); 
 
-    if (x.vector[0] != 20 || x.vector[1] != 40 || x.vector[2] != 80) {
+    if (z[0] != 20.0f || z[1] != 40.0f || z[2] != 80.0f) {
         passed = false;
-        printf("[20, 40, 80] != [%d, %d, %d]\n", x.vector[0], x.vector[1], x.vector[2]);
+        printf("[20.0, 40.0, 80.0] != [%f, %f, %f]\n", z[0], z[1], z[2]);
     }
 
-    clean_vector(x);
-    clean_vector(y);
+    clean_vector(vec_x);
+    clean_vector(vec_y);
+    clean_vector(vec_z);
 
     if (passed) {
-        printf("test_add_to_vector ... passed\n");
+        printf("test_vector_sub ... passed\n");
     } else {
-        printf("test_add_to_vector ... failed\n");
+        printf("test_vector_sub ... failed\n");
     }
     return passed;
 }
 
-bool test_sub_vectors() {
+bool test_vector_isub() {
     bool passed = true;
 
-    struct Vector x = generate_vector(3);
-    struct Vector y = generate_vector(3);
+    float x[3*sizeof(float)] = {30.0f, 60.0f, 120.0f};
+    float y[3*sizeof(float)] = {10.0f, 20.0f, 40.0f};
 
-    x.vector[0] = 10;
-    x.vector[1] = 20;
-    x.vector[2] = 40;
+    struct Vector vec_x = create_vector(x, 3);
+    struct Vector vec_y = create_vector(y, 3);
 
-    y.vector[0] = 10;
-    y.vector[1] = 20;
-    y.vector[2] = 40;
+    vector_isub(&vec_x, &vec_y);
 
-    struct Vector z = sub_vectors(&x, &y);
+    float* z = get_result(&vec_x); 
 
-    if (z.vector[0] != 0 || z.vector[1] != 0 || z.vector[2] != 0) {
+    if (z[0] != 20.0f || z[1] != 40.0f || z[2] != 80.0f) {
         passed = false;
-        printf("[0, 0, 0] != [%d, %d, %d]\n", z.vector[0], z.vector[1], z.vector[2]);
+        printf("[20.0, 40.0, 80.0] != [%f, %f, %f]\n", z[0], z[1], z[2]);
     }
 
-    clean_vector(x);
-    clean_vector(y);
-    clean_vector(z);
+    clean_vector(vec_x);
+    clean_vector(vec_y);
 
     if (passed) {
-        printf("test_sub_vectors ... passed\n");
+        printf("test_vector_isub ... passed\n");
     } else {
-        printf("test_sub_vectors ... failed\n");
+        printf("test_vector_isub ... failed\n");
     }
     return passed;
 }
 
-bool test_sub_from_vector() {
+bool test_vector_mul() {
     bool passed = true;
 
-    struct Vector x = generate_vector(3);
-    struct Vector y = generate_vector(3);
+    float x[3*sizeof(float)] = {2.0f, 2.0f, 2.0f};
+    float y[3*sizeof(float)] = {10.0f, 20.0f, 40.0f};
 
-    x.vector[0] = 10;
-    x.vector[1] = 20;
-    x.vector[2] = 40;
+    struct Vector vec_x = create_vector(x, 3);
+    struct Vector vec_y = create_vector(y, 3);
 
-    y.vector[0] = 10;
-    y.vector[1] = 20;
-    y.vector[2] = 40;
+    struct Vector vec_z = vector_mul(&vec_x, &vec_y);
 
-    sub_from_vector(&x, &y);
+    float* z = get_result(&vec_z); 
 
-    if (x.vector[0] != 0 || x.vector[1] != 0 || x.vector[2] != 0) {
+    if (z[0] != 20.0f || z[1] != 40.0f || z[2] != 80.0f) {
         passed = false;
-        printf("[0, 0, 0] != [%d, %d, %d]\n", x.vector[0], x.vector[1], x.vector[2]);
+        printf("[20.0, 40.0, 80.0] != [%f, %f, %f]\n", z[0], z[1], z[2]);
     }
 
-    clean_vector(x);
-    clean_vector(y);
+    clean_vector(vec_x);
+    clean_vector(vec_y);
+    clean_vector(vec_z);
 
     if (passed) {
-        printf("test_sub_from_vector ... passed\n");
+        printf("test_vector_mul ... passed\n");
     } else {
-        printf("test_sub_from_vector ... failed\n");
+        printf("test_vector_mul ... failed\n");
     }
     return passed;
 }
 
-bool test_mul_vectors() {
+bool test_vector_imul() {
     bool passed = true;
 
-    struct Vector x = generate_vector(3);
-    struct Vector y = generate_vector(3);
+    float x[3*sizeof(float)] = {2.0f, 2.0f, 2.0f};
+    float y[3*sizeof(float)] = {10.0f, 20.0f, 40.0f};
 
-    x.vector[0] = 10;
-    x.vector[1] = 20;
-    x.vector[2] = 40;
+    struct Vector vec_x = create_vector(x, 3);
+    struct Vector vec_y = create_vector(y, 3);
 
-    y.vector[0] = 2;
-    y.vector[1] = 2;
-    y.vector[2] = 2;
+    vector_imul(&vec_x, &vec_y);
 
-    struct Vector z = mul_vectors(&x, &y);
+    float* z = get_result(&vec_x); 
 
-    if (z.vector[0] != 20 || z.vector[1] != 40 || z.vector[2] != 80) {
+    if (z[0] != 20.0f || z[1] != 40.0f || z[2] != 80.0f) {
         passed = false;
-        printf("[20, 40, 80] != [%d, %d, %d]\n", z.vector[0], z.vector[1], z.vector[2]);
+        printf("[20.0, 40.0, 80.0] != [%f, %f, %f]\n", z[0], z[1], z[2]);
     }
 
-    clean_vector(x);
-    clean_vector(y);
-    clean_vector(z);
+    clean_vector(vec_x);
+    clean_vector(vec_y);
 
     if (passed) {
-        printf("test_mul_vectors ... passed\n");
+        printf("test_vector_imul ... passed\n");
     } else {
-        printf("test_mul_vectors ... failed\n");
-    }
-
-    return passed;
-}
-
-bool test_mul_to_vector() {
-    bool passed = true;
-
-    struct Vector x = generate_vector(3);
-    struct Vector y = generate_vector(3);
-
-    x.vector[0] = 10;
-    x.vector[1] = 20;
-    x.vector[2] = 40;
-
-    y.vector[0] = 2;
-    y.vector[1] = 2;
-    y.vector[2] = 2;
-
-    mul_to_vector(&x, &y);
-
-    if (x.vector[0] != 20 || x.vector[1] != 40 || x.vector[2] != 80) {
-        passed = false;
-        printf("[20, 40, 80] != [%d, %d, %d]\n", x.vector[0], x.vector[1], x.vector[2]);
-    }
-
-    clean_vector(x);
-    clean_vector(y);
-
-    if (passed) {
-        printf("test_mul_to_vector ... passed\n");
-    } else {
-        printf("test_mul_to_vector ... failed\n");
+        printf("test_vector_imul ... failed\n");
     }
     return passed;
 }
 
+bool test_vector_div() {
+    bool passed = true;
+
+    float x[3*sizeof(float)] = {200.0f, 800.0f, 3200.0f};
+    float y[3*sizeof(float)] = {10.0f, 20.0f, 40.0f};
+
+    struct Vector vec_x = create_vector(x, 3);
+    struct Vector vec_y = create_vector(y, 3);
+
+    struct Vector vec_z = vector_div(&vec_x, &vec_y);
+
+    float* z = get_result(&vec_z); 
+
+    if (z[0] != 20.0f || z[1] != 40.0f || z[2] != 80.0f) {
+        passed = false;
+        printf("[20.0, 40.0, 80.0] != [%f, %f, %f]\n", z[0], z[1], z[2]);
+    }
+
+    clean_vector(vec_x);
+    clean_vector(vec_y);
+    clean_vector(vec_z);
+
+    if (passed) {
+        printf("test_vector_div ... passed\n");
+    } else {
+        printf("test_vector_div ... failed\n");
+    }
+    return passed;
+}
+
+bool test_vector_idiv() {
+    bool passed = true;
+
+    float x[3*sizeof(float)] = {200.0f, 800.0f, 3200.0f};
+    float y[3*sizeof(float)] = {10.0f, 20.0f, 40.0f};
+
+    struct Vector vec_x = create_vector(x, 3);
+    struct Vector vec_y = create_vector(y, 3);
+
+    vector_idiv(&vec_x, &vec_y);
+
+    float* z = get_result(&vec_x); 
+
+    if (z[0] != 20.0f || z[1] != 40.0f || z[2] != 80.0f) {
+        passed = false;
+        printf("[20.0, 40.0, 80.0] != [%f, %f, %f]\n", z[0], z[1], z[2]);
+    }
+
+    clean_vector(vec_x);
+    clean_vector(vec_y);
+
+    if (passed) {
+        printf("test_vector_idiv ... passed\n");
+    } else {
+        printf("test_vector_idiv ... failed\n");
+    }
+    return passed;
+}
 
 int main() {
     bool passed = true;
-
-    passed = test_generate_vector();
 
     if (!passed) {
         printf("Foundation tests passed. Any further tests not run.\n");
         return 1;
     }
 
-    passed = test_add_vectors();
-    passed = test_add_to_vector();
-    passed = test_sub_vectors();
-    passed = test_sub_from_vector();
-    passed = test_mul_vectors();
-    passed = test_mul_to_vector();
-
+    passed = test_vector_add();
+    passed = test_vector_iadd();
+    passed = test_vector_sub();
+    passed = test_vector_isub();
+    passed = test_vector_mul();
+    passed = test_vector_imul();
+    passed = test_vector_div();
+    passed = test_vector_idiv();
+    
     if (passed) {
         printf("all tests passed\n");
         return 0;
