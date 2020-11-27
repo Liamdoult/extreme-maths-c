@@ -1,7 +1,8 @@
 # EXTREME Maths
 
-A maths library focused at high performance computational mathematics. At heart this library will support GPU and CPU processing. This repository contains the underlying c code.
+Speed guaranteed, practicality..\. perhaps not.
 
+A mathematics library focused at high performance computational mathematics. At its heart this library will support GPU, CPU and distributed processing.
 
 ## Testing
 
@@ -9,4 +10,4 @@ A maths library focused at high performance computational mathematics. At heart 
 
 ## Build Shared Lib
 
-    make shared
+    make
