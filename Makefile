@@ -1,10 +1,16 @@
 all:
 	nvcc --compiler-options '-fPIC -O3' --shared -I include src/vector.c -o ./bin/libem.so
 	nvcc --compiler-options '-fPIC -O3' --shared -I include src/vector.cu -o ./bin/libem_cuda.so
+	gcc -O3 -fPIC --shared -I include src/vector_cl.c -o ./bin/libem_ocl.so -lOpenCL -lm
 
-test:
+open_cl_preprocessing:
+	touch include/ocl_kernal_source.h
+	bash stringify_ocl src/vector.cl
+
+test: open_cl_preprocessing
 	nvcc -I include src/vector.c src/test.c -o ./build/c_test
 	@./build/c_test
 	nvcc -I include src/vector.cu src/test.c -o ./build/cu_test
 	@./build/cu_test
-
+	gcc -I include src/vector_cl.c src/test.c -o ./build/ocl_test -lOpenCL -lm
+	@./build/ocl_test

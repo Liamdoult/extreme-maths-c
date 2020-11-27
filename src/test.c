@@ -3,9 +3,11 @@
 #include "extreme_maths.h"
 
 void print_vector(struct Vector *a) {
+   float *res;
+   res = get_result(a);
    printf("[");
    for (int i = 0; i < a->size; i++) {
-      printf(" %f,", a->array[i]);
+      printf(" %f,", res[i]);
    }
    printf(" ]\n");
 }
@@ -248,6 +250,7 @@ bool test_vector_idiv() {
 
 int main() {
     bool passed = true;
+    init();
 
     if (!passed) {
         printf("Foundation tests passed. Any further tests not run.\n");
@@ -263,6 +266,7 @@ int main() {
     passed = test_vector_div();
     passed = test_vector_idiv();
     
+    clean();
     if (passed) {
         printf("all tests passed\n");
         return 0;

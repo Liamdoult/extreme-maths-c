@@ -1,6 +1,9 @@
 #include <string.h>
 #include "extreme_maths.h"
 
+void init() {}
+void clean() {}
+
 struct Vector create_vector(float *a, int size) {
     float *array; 
 

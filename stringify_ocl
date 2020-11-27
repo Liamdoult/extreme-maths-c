@@ -1,0 +1,8 @@
+#!/bin/bash
+IN=$1
+NAME=${IN%.cl}
+OUT=./include/ocl_kernal_source.h
+
+echo "const char *kernal_source =" > $OUT
+sed -e 's/\\/\\\\/g;s/"/\\"/g;s/^/"/;s/$/\\n"/' $IN >> $OUT
+echo ";" >>$OUT

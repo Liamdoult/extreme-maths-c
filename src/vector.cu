@@ -36,6 +36,10 @@ __global__ void _vector_idiv(float *a, float *b) {
 }
 
 extern "C" {
+
+    void init() {}
+    void clean() {}
+
      
     struct Vector create_vector(float *a, int size) {
         float *array;

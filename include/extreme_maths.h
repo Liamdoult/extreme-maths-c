@@ -8,8 +8,15 @@ extern "C" {
 
 struct Vector {
     int size;
+#ifdef OPENCL
+    cl_mem array;
+#else
     float *array;
+#endif
 };
+
+void init();
+void clean();
 
 struct Vector create_vector(float *a, int size);
 float* get_result(struct Vector *a);
