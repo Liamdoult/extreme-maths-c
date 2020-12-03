@@ -73,7 +73,8 @@ extern "C" {
         return out;
     }
 
-    void vector_iadd(struct Vector *a, struct Vector *b) { _vector_iadd<<<a->size, 1>>>(a->array, b->array);
+    void vector_iadd(struct Vector *a, struct Vector *b) {
+        _vector_iadd<<<a->size, 1>>>(a->array, b->array);
     }
 
     struct Vector vector_add(struct Vector *a, struct Vector *b) {
