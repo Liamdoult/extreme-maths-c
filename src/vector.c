@@ -20,9 +20,6 @@ v_f create_f(float *arr, int size) {
 
     memcpy(vec.array, arr, sizeof(float) * size);
 
-    struct Vector vec;
-    vec.size = size;
-    vec.array = array;
     return vec;
 }
 
@@ -79,12 +76,13 @@ void idiv_f(v_f *a, v_f *b) {
 v_f add_f(v_f *a, v_f *b) {
     if (a->size != b->size) {
         printf("Invalid sizes");
-	exit(1);
+        exit(1);
     }
     v_f c = _generate_f(a->size);
     for (int i = 0; i < a -> size; i++) {
         c.array[i] = a->array[i] + b->array[i];
     }
+    return c;
 }
 
 v_f sub_f(v_f *a, v_f *b) {

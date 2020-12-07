@@ -77,6 +77,15 @@ bool test_Vector_op(char *name, v_f (*fn)(v_f *, v_f *), float (*op)(float a, fl
     clean(&vec_x);
     clean(&vec_y);
 
+    if (passed) {
+        printf("test_%s\t..." ANSI_COLOR_GREEN "passed\n" ANSI_COLOR_RESET , name);
+    } else {
+        printf("test_%s\t..." ANSI_COLOR_RED "failed\n" ANSI_COLOR_RESET, name);
+    }
+
+    return passed;
+
+}
 
 
 bool test_Vector_iop(char *name, void (*fn)(v_f *, v_f *), float (*op)(float a, float b), int n) {
