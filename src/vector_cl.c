@@ -12,6 +12,9 @@
 #include <stdlib.h>
 #include <math.h>
 
+#if !defined(GPU)
+#error Please add -DGPU flag to build with GPU support
+#endif
 #include "extreme_maths.h"
 #include "ocl_kernal_source.h"
 
@@ -22,14 +25,14 @@ cl_context context;
 cl_command_queue commandQueue;
 cl_program program;
 
-cl_kernel _vector_add;
-cl_kernel _vector_iadd;
-cl_kernel _vector_sub;
-cl_kernel _vector_isub;
-cl_kernel _vector_mul;
-cl_kernel _vector_imul;
-cl_kernel _vector_div;
-cl_kernel _vector_idiv;
+cl_kernel _vector_add_float;
+cl_kernel _vector_iadd_float;
+cl_kernel _vector_sub_float;
+cl_kernel _vector_isub_float;
+cl_kernel _vector_mul_float;
+cl_kernel _vector_imul_float;
+cl_kernel _vector_div_float;
+cl_kernel _vector_idiv_float;
 
 const char *getErrorString(cl_int error)
 {
@@ -150,14 +153,14 @@ void init() {
 
 
     // Create kernel
-    _vector_add = clCreateKernel(program, "_vector_add", &ret);
-    _vector_iadd = clCreateKernel(program, "_vector_iadd", &ret);
-    _vector_sub = clCreateKernel(program, "_vector_sub", &ret);
-    _vector_isub = clCreateKernel(program, "_vector_isub", &ret);
-    _vector_mul = clCreateKernel(program, "_vector_mul", &ret);
-    _vector_imul = clCreateKernel(program, "_vector_imul", &ret);
-    _vector_div = clCreateKernel(program, "_vector_div", &ret);
-    _vector_idiv = clCreateKernel(program, "_vector_idiv", &ret);
+    _vector_add_float = clCreateKernel(program, "_vector_add_float", &ret);
+    _vector_iadd_float = clCreateKernel(program, "_vector_iadd_float", &ret);
+    _vector_sub_float = clCreateKernel(program, "_vector_sub_float", &ret);
+    _vector_isub_float = clCreateKernel(program, "_vector_isub_float", &ret);
+    _vector_mul_float = clCreateKernel(program, "_vector_mul_float", &ret);
+    _vector_imul_float = clCreateKernel(program, "_vector_imul_float", &ret);
+    _vector_div_float = clCreateKernel(program, "_vector_div_float", &ret);
+    _vector_idiv_float = clCreateKernel(program, "_vector_idiv_float", &ret);
 }
 
 void clean() {
@@ -168,32 +171,28 @@ void clean() {
     ret = clReleaseContext(context);
 }
 
-struct Vector create_vector(float *a, int size) {
+struct Vector_float Vector_generate_float(int size) {
 	cl_mem aMemObj = clCreateBuffer(context, CL_MEM_READ_WRITE, size * sizeof(float), NULL, &ret);
-	ret = clEnqueueWriteBuffer(commandQueue, aMemObj, CL_TRUE, 0, size * sizeof(float), a, 0, NULL, NULL);;
+
+    struct Vector_float vec;
+    vec.size = size;
+    vec.array = aMemObj;
+    return vec;
+}
+
+struct Vector_float Vector_create_float(float *a, int size) {
+    struct Vector_float vec = Vector_generate_float(size);
+	ret = clEnqueueWriteBuffer(commandQueue, vec.array, CL_TRUE, 0, size * sizeof(float), a, 0, NULL, NULL);;
 
     if(ret != CL_SUCCESS) {
         printf("create_vector CODE: %d\n", ret);
         printf("%s\n", getErrorString(ret));
     }
 
-    struct Vector vec;
-    vec.size = size;
-    vec.array = aMemObj;
     return vec;
 }
 
-struct Vector generate_vector(int size) {
-	cl_mem aMemObj = clCreateBuffer(context, CL_MEM_READ_WRITE, size * sizeof(float), NULL, &ret);
-
-    struct Vector vec;
-    vec.size = size;
-    vec.array = aMemObj;
-    return vec;
-}
-
-
-float* get_result(struct Vector *a) {
+float* Vector_get_result_float(struct Vector_float *a) {
     float *res = (float*)malloc(sizeof(float)*a->size);
 
     ret = clEnqueueReadBuffer(commandQueue, a->array, CL_TRUE, 0, a->size * sizeof(float), res, 0, NULL, NULL);
@@ -206,22 +205,22 @@ float* get_result(struct Vector *a) {
     return res;
 }
 
-void clean_vector(struct Vector a) {
+void Vector_clean_float(struct Vector_float a) {
 	ret = clReleaseMemObject(a.array);
 }
 
-struct Vector vector_add(struct Vector *a, struct Vector *b) {
+struct Vector_float Vector_add_float(struct Vector_float *a, struct Vector_float *b) {
 
-    struct Vector out = generate_vector(a->size);
+    struct Vector_float out = Vector_generate_float(a->size);
 
-	ret = clSetKernelArg(_vector_add, 0, sizeof(cl_mem), &(out.array));	
-	ret = clSetKernelArg(_vector_add, 1, sizeof(cl_mem), &(a->array));	
-	ret = clSetKernelArg(_vector_add, 2, sizeof(cl_mem), &(b->array));	
-    ret = clSetKernelArg(_vector_add, 3, sizeof(unsigned int), &(a->size));
+	ret = clSetKernelArg(_vector_add_float, 0, sizeof(cl_mem), &(out.array));	
+	ret = clSetKernelArg(_vector_add_float, 1, sizeof(cl_mem), &(a->array));	
+	ret = clSetKernelArg(_vector_add_float, 2, sizeof(cl_mem), &(b->array));	
+    ret = clSetKernelArg(_vector_add_float, 3, sizeof(unsigned int), &(a->size));
 
 	size_t localSize = 64;
 	size_t globalSize = ceil(a->size/(float)localSize)*localSize;
-	ret = clEnqueueNDRangeKernel(commandQueue, _vector_add, 1, NULL, &globalSize, &localSize, 0, NULL, NULL);	
+	ret = clEnqueueNDRangeKernel(commandQueue, _vector_add_float, 1, NULL, &globalSize, &localSize, 0, NULL, NULL);	
 
     if(ret != CL_SUCCESS) {
         printf("CODE: %d\n", ret);
@@ -231,14 +230,14 @@ struct Vector vector_add(struct Vector *a, struct Vector *b) {
     return out;
 }
 
-void vector_iadd(struct Vector *a, struct Vector *b) {
-	ret = clSetKernelArg(_vector_iadd, 0, sizeof(cl_mem), &(a->array));	
-	ret = clSetKernelArg(_vector_iadd, 1, sizeof(cl_mem), &(b->array));	
-    ret = clSetKernelArg(_vector_iadd, 2, sizeof(unsigned int), &(a->size));
+void Vector_iadd_float(struct Vector_float *a, struct Vector_float *b) {
+	ret = clSetKernelArg(_vector_iadd_float, 0, sizeof(cl_mem), &(a->array));	
+	ret = clSetKernelArg(_vector_iadd_float, 1, sizeof(cl_mem), &(b->array));	
+    ret = clSetKernelArg(_vector_iadd_float, 2, sizeof(unsigned int), &(a->size));
 
 	size_t localSize = 64;
 	size_t globalSize = ceil(a->size/(float)localSize)*localSize;
-	ret = clEnqueueNDRangeKernel(commandQueue, _vector_iadd, 1, NULL, &globalSize, &localSize, 0, NULL, NULL);	
+	ret = clEnqueueNDRangeKernel(commandQueue, _vector_iadd_float, 1, NULL, &globalSize, &localSize, 0, NULL, NULL);	
 
     if(ret != CL_SUCCESS) {
         printf("CODE: %d\n", ret);
@@ -247,55 +246,18 @@ void vector_iadd(struct Vector *a, struct Vector *b) {
 
 }
 
-struct Vector vector_sub(struct Vector *a, struct Vector *b) {
+struct Vector_float Vector_sub_float(struct Vector_float *a, struct Vector_float *b) {
 
-    struct Vector out = generate_vector(a->size);
+    struct Vector_float out = Vector_generate_float(a->size);
 
-	ret = clSetKernelArg(_vector_sub, 0, sizeof(cl_mem), &(out.array));	
-	ret = clSetKernelArg(_vector_sub, 1, sizeof(cl_mem), &(a->array));	
-	ret = clSetKernelArg(_vector_sub, 2, sizeof(cl_mem), &(b->array));	
-    ret = clSetKernelArg(_vector_sub, 3, sizeof(unsigned int), &(a->size));
-
-	size_t localSize = 64;
-	size_t globalSize = ceil(a->size/(float)localSize)*localSize;
-	ret = clEnqueueNDRangeKernel(commandQueue, _vector_sub, 1, NULL, &globalSize, &localSize, 0, NULL, NULL);	
-
-    if(ret != CL_SUCCESS) {
-        printf("CODE: %d\n", ret);
-        printf("%s\n", getErrorString(ret));
-    }
-
-    return out;
-}
-
-void vector_isub(struct Vector *a, struct Vector *b) {
-	ret = clSetKernelArg(_vector_isub, 0, sizeof(cl_mem), &(a->array));	
-	ret = clSetKernelArg(_vector_isub, 1, sizeof(cl_mem), &(b->array));	
-    ret = clSetKernelArg(_vector_isub, 2, sizeof(unsigned int), &(a->size));
+	ret = clSetKernelArg(_vector_sub_float, 0, sizeof(cl_mem), &(out.array));	
+	ret = clSetKernelArg(_vector_sub_float, 1, sizeof(cl_mem), &(a->array));	
+	ret = clSetKernelArg(_vector_sub_float, 2, sizeof(cl_mem), &(b->array));	
+    ret = clSetKernelArg(_vector_sub_float, 3, sizeof(unsigned int), &(a->size));
 
 	size_t localSize = 64;
 	size_t globalSize = ceil(a->size/(float)localSize)*localSize;
-	ret = clEnqueueNDRangeKernel(commandQueue, _vector_isub, 1, NULL, &globalSize, &localSize, 0, NULL, NULL);	
-
-    if(ret != CL_SUCCESS) {
-        printf("CODE: %d\n", ret);
-        printf("%s\n", getErrorString(ret));
-    }
-
-}
-
-struct Vector vector_mul(struct Vector *a, struct Vector *b) {
-
-    struct Vector out = generate_vector(a->size);
-
-	ret = clSetKernelArg(_vector_mul, 0, sizeof(cl_mem), &(out.array));	
-	ret = clSetKernelArg(_vector_mul, 1, sizeof(cl_mem), &(a->array));	
-	ret = clSetKernelArg(_vector_mul, 2, sizeof(cl_mem), &(b->array));	
-    ret = clSetKernelArg(_vector_mul, 3, sizeof(unsigned int), &(a->size));
-
-	size_t localSize = 64;
-	size_t globalSize = ceil(a->size/(float)localSize)*localSize;
-	ret = clEnqueueNDRangeKernel(commandQueue, _vector_mul, 1, NULL, &globalSize, &localSize, 0, NULL, NULL);	
+	ret = clEnqueueNDRangeKernel(commandQueue, _vector_sub_float, 1, NULL, &globalSize, &localSize, 0, NULL, NULL);	
 
     if(ret != CL_SUCCESS) {
         printf("CODE: %d\n", ret);
@@ -305,14 +267,14 @@ struct Vector vector_mul(struct Vector *a, struct Vector *b) {
     return out;
 }
 
-void vector_imul(struct Vector *a, struct Vector *b) {
-	ret = clSetKernelArg(_vector_imul, 0, sizeof(cl_mem), &(a->array));	
-	ret = clSetKernelArg(_vector_imul, 1, sizeof(cl_mem), &(b->array));	
-    ret = clSetKernelArg(_vector_imul, 2, sizeof(unsigned int), &(a->size));
+void Vector_isub_float(struct Vector_float *a, struct Vector_float *b) {
+	ret = clSetKernelArg(_vector_isub_float, 0, sizeof(cl_mem), &(a->array));	
+	ret = clSetKernelArg(_vector_isub_float, 1, sizeof(cl_mem), &(b->array));	
+    ret = clSetKernelArg(_vector_isub_float, 2, sizeof(unsigned int), &(a->size));
 
 	size_t localSize = 64;
 	size_t globalSize = ceil(a->size/(float)localSize)*localSize;
-	ret = clEnqueueNDRangeKernel(commandQueue, _vector_imul, 1, NULL, &globalSize, &localSize, 0, NULL, NULL);	
+	ret = clEnqueueNDRangeKernel(commandQueue, _vector_isub_float, 1, NULL, &globalSize, &localSize, 0, NULL, NULL);	
 
     if(ret != CL_SUCCESS) {
         printf("CODE: %d\n", ret);
@@ -321,18 +283,18 @@ void vector_imul(struct Vector *a, struct Vector *b) {
 
 }
 
-struct Vector vector_div(struct Vector *a, struct Vector *b) {
+struct Vector_float Vector_mul_float(struct Vector_float *a, struct Vector_float *b) {
 
-    struct Vector out = generate_vector(a->size);
+    struct Vector_float out = Vector_generate_float(a->size);
 
-	ret = clSetKernelArg(_vector_div, 0, sizeof(cl_mem), &(out.array));	
-	ret = clSetKernelArg(_vector_div, 1, sizeof(cl_mem), &(a->array));	
-	ret = clSetKernelArg(_vector_div, 2, sizeof(cl_mem), &(b->array));	
-    ret = clSetKernelArg(_vector_div, 3, sizeof(unsigned int), &(a->size));
+	ret = clSetKernelArg(_vector_mul_float, 0, sizeof(cl_mem), &(out.array));	
+	ret = clSetKernelArg(_vector_mul_float, 1, sizeof(cl_mem), &(a->array));	
+	ret = clSetKernelArg(_vector_mul_float, 2, sizeof(cl_mem), &(b->array));	
+    ret = clSetKernelArg(_vector_mul_float, 3, sizeof(unsigned int), &(a->size));
 
 	size_t localSize = 64;
 	size_t globalSize = ceil(a->size/(float)localSize)*localSize;
-	ret = clEnqueueNDRangeKernel(commandQueue, _vector_div, 1, NULL, &globalSize, &localSize, 0, NULL, NULL);	
+	ret = clEnqueueNDRangeKernel(commandQueue, _vector_mul_float, 1, NULL, &globalSize, &localSize, 0, NULL, NULL);	
 
     if(ret != CL_SUCCESS) {
         printf("CODE: %d\n", ret);
@@ -342,14 +304,51 @@ struct Vector vector_div(struct Vector *a, struct Vector *b) {
     return out;
 }
 
-void vector_idiv(struct Vector *a, struct Vector *b) {
-	ret = clSetKernelArg(_vector_idiv, 0, sizeof(cl_mem), &(a->array));	
-	ret = clSetKernelArg(_vector_idiv, 1, sizeof(cl_mem), &(b->array));	
-    ret = clSetKernelArg(_vector_idiv, 2, sizeof(unsigned int), &(a->size));
+void Vector_imul_float(struct Vector_float *a, struct Vector_float *b) {
+	ret = clSetKernelArg(_vector_imul_float, 0, sizeof(cl_mem), &(a->array));	
+	ret = clSetKernelArg(_vector_imul_float, 1, sizeof(cl_mem), &(b->array));	
+    ret = clSetKernelArg(_vector_imul_float, 2, sizeof(unsigned int), &(a->size));
 
 	size_t localSize = 64;
 	size_t globalSize = ceil(a->size/(float)localSize)*localSize;
-	ret = clEnqueueNDRangeKernel(commandQueue, _vector_idiv, 1, NULL, &globalSize, &localSize, 0, NULL, NULL);	
+	ret = clEnqueueNDRangeKernel(commandQueue, _vector_imul_float, 1, NULL, &globalSize, &localSize, 0, NULL, NULL);	
+
+    if(ret != CL_SUCCESS) {
+        printf("CODE: %d\n", ret);
+        printf("%s\n", getErrorString(ret));
+    }
+
+}
+
+struct Vector_float Vector_div_float(struct Vector_float *a, struct Vector_float *b) {
+
+    struct Vector_float out = Vector_generate_float(a->size);
+
+	ret = clSetKernelArg(_vector_div_float, 0, sizeof(cl_mem), &(out.array));	
+	ret = clSetKernelArg(_vector_div_float, 1, sizeof(cl_mem), &(a->array));	
+	ret = clSetKernelArg(_vector_div_float, 2, sizeof(cl_mem), &(b->array));	
+    ret = clSetKernelArg(_vector_div_float, 3, sizeof(unsigned int), &(a->size));
+
+	size_t localSize = 64;
+	size_t globalSize = ceil(a->size/(float)localSize)*localSize;
+	ret = clEnqueueNDRangeKernel(commandQueue, _vector_div_float, 1, NULL, &globalSize, &localSize, 0, NULL, NULL);	
+
+    if(ret != CL_SUCCESS) {
+        printf("CODE: %d\n", ret);
+        printf("%s\n", getErrorString(ret));
+    }
+
+    return out;
+}
+
+void Vector_idiv_float(struct Vector_float *a, struct Vector_float *b) {
+	ret = clSetKernelArg(_vector_idiv_float, 0, sizeof(cl_mem), &(a->array));	
+	ret = clSetKernelArg(_vector_idiv_float, 1, sizeof(cl_mem), &(b->array));	
+    ret = clSetKernelArg(_vector_idiv_float, 2, sizeof(unsigned int), &(a->size));
+
+	size_t localSize = 64;
+	size_t globalSize = ceil(a->size/(float)localSize)*localSize;
+	ret = clEnqueueNDRangeKernel(commandQueue, _vector_idiv_float, 1, NULL, &globalSize, &localSize, 0, NULL, NULL);	
 
     if(ret != CL_SUCCESS) {
         printf("CODE: %d\n", ret);
