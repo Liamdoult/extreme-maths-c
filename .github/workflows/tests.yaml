@@ -1,0 +1,15 @@
+name: Test suite 
+
+on: [push]
+
+jobs:
+
+  tests:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Run test suite
+      run: |
+        make test
