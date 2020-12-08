@@ -20,8 +20,9 @@ jobs:
       - name: Build binary
         run: |
           make
-          zip libem.zip ./bin/libem.so
-          tar -czvf libem.tar.gz ./bin/libem.so 
+          cp ./bin/libem.so .
+          zip libem.zip ./libem.so
+          tar -czvf libem.tar.gz ./libem.so 
 
       - name: Upload Release Asset (.zip)
         uses: actions/upload-release-asset@v1.0.2
