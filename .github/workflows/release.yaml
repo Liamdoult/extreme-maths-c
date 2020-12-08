@@ -1,0 +1,45 @@
+name: Create New Release 
+on:
+  release:
+    types: [created]
+
+jobs:
+  build:
+    name: Build release binary
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Get release
+        id: get_release
+        uses: bruceadams/get-release@v1.2.2
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
+      - name: Build binary
+        run: |
+          make
+          zip libem.zip ./bin/libem.so
+          tar -czvf libem.tar.gz ./bin/libem.so 
+
+      - name: Upload Release Asset (.zip)
+        uses: actions/upload-release-asset@v1.0.2
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: ${{ steps.get_release.outputs.upload_url }}
+          asset_path: ./libem.zip
+          asset_name: libem.zip
+          asset_content_type: application/octet-stream
+
+      - name: Upload Release Asset (tar)
+        uses: actions/upload-release-asset@v1.0.2
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: ${{ steps.get_release.outputs.upload_url }}
+          asset_path: ./libem.tar.gz
+          asset_name: libem.tar.gz
+          asset_content_type: application/octet-stream
+
