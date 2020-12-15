@@ -11,11 +11,7 @@ void close();
 
 typedef struct Vector_float {
     int size;
-#ifdef OPENCL
-    cl_mem array;
-#else
-    float *array;
-#endif
+    float* array;
 } v_f;
 
 // ==============================================================================================================
@@ -46,7 +42,8 @@ float * result_f(v_f *vec);
 void clean_f(v_f *vec);
 #define clean(X) _Generic((X), v_f*: clean_f)(X)
 
-v_f create_f(float *arr, int size);
+v_f copy_f(float *arr, int size);
+v_f point_f(float *arr, int size);
 
 #if __cplusplus
 }

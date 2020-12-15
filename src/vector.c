@@ -15,11 +15,18 @@ v_f _generate_f(int size) {
     return vec;
 }
 
-v_f create_f(float *arr, int size) {
+v_f copy_f(float *arr, int size) {
     v_f vec = _generate_f(size);
 
     memcpy(vec.array, arr, sizeof(float) * size);
 
+    return vec;
+}
+
+v_f point_f(float *arr, int size) {
+    v_f vec;
+    vec.size = size;
+    vec.array = arr;
     return vec;
 }
 
