@@ -182,35 +182,35 @@ float val_div(float a, float b) { return a / b; };
  * Pre-processor cannot swap functions for auto testing tools
  */
 v_f w_add_f(v_f *a, v_f *b) {
-    return add(a, b);
+    return add_v(a, b);
 }
 
 void w_iadd_f(v_f *a, v_f *b) {
-    iadd(a, b);
+    iadd_v(a, b);
 }
 
 v_f w_sub_f(v_f *a, v_f *b) {
-    return sub(a, b);
+    return sub_v(a, b);
 }
 
 void w_isub_f(v_f *a, v_f *b) {
-    isub(a, b);
+    isub_v(a, b);
 }
 
 v_f w_mul_f(v_f *a, v_f *b) {
-    return mul(a, b);
+    return mul_v(a, b);
 }
 
 void w_imul_f(v_f *a, v_f *b) {
-    imul(a, b);
+    imul_v(a, b);
 }
 
 v_f w_div_f(v_f *a, v_f *b) {
-    return div(a, b);
+    return div_v(a, b);
 }
 
 void w_idiv_f(v_f *a, v_f *b) {
-    idiv(a, b);
+    idiv_v(a, b);
 }
 
 
