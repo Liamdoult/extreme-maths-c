@@ -2,7 +2,6 @@
 #include "extreme_maths.h"
 
 void init() {}
-void close() {}
 
 float* _generate_f(int *size) {
     return (float*)malloc(sizeof(float) * *size);

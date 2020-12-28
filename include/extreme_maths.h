@@ -7,7 +7,6 @@ extern "C" {
 #endif
 
 void init();
-void close();
 
 typedef struct Vector_float {
     int size;
