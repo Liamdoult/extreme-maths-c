@@ -21,7 +21,7 @@ void print_vector(v_f *a) {
 }
 
 bool test_Vector_copy_f(int size) {
-    float x[size*sizeof(float)];
+		float* x = malloc(size*sizeof(float));
 
     for (int i=0; i < size; i++) {
         x[i] = (float)(i+1)/10;
@@ -44,11 +44,13 @@ bool test_Vector_copy_f(int size) {
     }
 
     printf("test_Vector_copy_f\t..." ANSI_COLOR_GREEN "passed\n" ANSI_COLOR_RESET);
+
+		free(x);
     return true;
 }
 
 bool test_Vector_point_f(int size) {
-    float x[size*sizeof(float)];
+		float* x = malloc(size*sizeof(float));
 
     for (int i=0; i < size; i++) {
         x[i] = (float)(i+1)/10;
@@ -62,6 +64,8 @@ bool test_Vector_point_f(int size) {
     }
 
     printf("test_Vector_point_f\t..." ANSI_COLOR_GREEN "passed\n" ANSI_COLOR_RESET);
+
+		free(x);
     return true;
 }
 
@@ -69,12 +73,12 @@ bool test_Vector_point_f(int size) {
 bool test_Vector_op(char *name, v_f (*fn)(v_f *, v_f *), float (*op)(float a, float b), int n) {
     bool passed = true;
 
-    float check[n*sizeof(float)];
-    float x[n*sizeof(float)];
-    float y[n*sizeof(float)];
+		float *check = malloc(n*sizeof(float));
+		float *x = malloc(n*sizeof(float));
+		float *y = malloc(n*sizeof(float));
 
     for (int i=0; i < n; i++) {
-        check[i] = (float)(i+1)/10;
+				check[i] = (float)(i+1)/10;
         x[i] = (float)(i+1)/10;
         y[i] = (float)(i+1)/10;
     }
@@ -114,6 +118,9 @@ bool test_Vector_op(char *name, v_f (*fn)(v_f *, v_f *), float (*op)(float a, fl
         printf("test_%s\t..." ANSI_COLOR_RED "failed\n" ANSI_COLOR_RESET, name);
     }
 
+		free(check);
+		free(x);
+		free(y);
     return passed;
 
 }
@@ -122,14 +129,14 @@ bool test_Vector_op(char *name, v_f (*fn)(v_f *, v_f *), float (*op)(float a, fl
 bool test_Vector_iop(char *name, void (*fn)(v_f *, v_f *), float (*op)(float a, float b), int n) {
     bool passed = true;
 
-    float check[n*sizeof(float)];
-    float x[n*sizeof(float)];
-    float y[n*sizeof(float)];
+		float *check = malloc(n*sizeof(float));
+		float *x = malloc(n*sizeof(float));
+		float *y = malloc(n*sizeof(float));
 
-    for (int i = 1; i <= n; i++) {
-        check[i] = (float)i/10;
-        x[i] = (float)i/10;
-        y[i] = (float)i/10;
+    for (int i = 1; i < n; i++) {
+ 				check[i] = (float)(i+1)/10;
+        x[i] = (float)(i+1)/10;
+        y[i] = (float)(i+1)/10;
     }
 
     v_f vec_x = copy_f(x, n);
@@ -157,7 +164,7 @@ bool test_Vector_iop(char *name, void (*fn)(v_f *, v_f *), float (*op)(float a, 
 
     for (int i=0;i<n;i++) {
         if (op(check[i], check[i]) != c[i]) {
-            printf("%f op %f => %f == %f == %f | %f\n", check[i], check[i], op(check[i], check[i]), x[i], c[i], y[i]);
+            printf("%f op %f => %f == %f (%f | %f)\n", check[i], check[i], op(check[i], check[i]), c[i], x[i], y[i]);
             passed = false;
         }
     }
@@ -168,6 +175,9 @@ bool test_Vector_iop(char *name, void (*fn)(v_f *, v_f *), float (*op)(float a, 
         printf("test_%s\t..." ANSI_COLOR_RED "failed\n" ANSI_COLOR_RESET, name);
     }
 
+		free(check);
+		free(x);
+		free(y);
     return passed;
 }
 
@@ -233,9 +243,8 @@ int main() {
     passed = test_Vector_op("mul", &w_mul_f, val_mul, 10);
     passed = test_Vector_iop("imul", &w_imul_f, val_mul, 10);
     passed = test_Vector_op("div", &w_div_f, val_div, 10);
-    passed = test_Vector_iop("idv", &w_idiv_f, val_div, 10);
+    passed = test_Vector_iop("idiv", &w_idiv_f, val_div, 10);
 
-    close();
     if (passed) {
         printf("all tests passed\n");
         return 0;
