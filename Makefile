@@ -1,11 +1,15 @@
-all:
-	@mkdir -p ./bin
-	gcc -O3 -fPIC --shared -I include src/vector.c -o ./bin/libem.so
-	# icc -mkl -O3 -fPIC --shared -I include src/vector.c -o ./bin/libiem.so
+#!/usr/bin/make -f
+CC=cl
+
+build:
+			cl .\src\vector.c /I .\include\ /MT /Ox
+			# $(CC) -O3 --shared -I include src\vector.c -o .\bin\libem.dll
+			# $(CC) -O3 -fPIC --shared -I include src\vector.c -o .\bin\libem.so
+			# icc -mkl -O3 -fPIC --shared -I include src/vector.c -o ./bin/libiem.so
+
+prepare:
+			@mkdir .\bin
 
 test:
-	@mkdir -p ./build
-	gcc -g -I include src/vector.c src/test.c -o ./build/c_test 
-	@./build/c_test
-	# icc -mkl -g -I include src/vector.c src/test.c -o ./build/c_itest 
-	# @./build/c_itest
+			cl .\src\vector.c .\src\test.c /I .\include\ /MT /Ox /std:c11 /Fe
+			./vector.exe
